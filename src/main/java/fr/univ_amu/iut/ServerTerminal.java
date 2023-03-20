@@ -14,7 +14,7 @@ public class ServerTerminal {
     private static final String[] protocols = new String[]{"TLSv1.3"};
     private static final String[] cipher_suites = new String[]{"TLS_AES_128_GCM_SHA256"};
     private int port;
-    private final int MAX_SIMULTANEUS_CONNEXIONS;
+    private final int MAX_SIMULTANEOUS_CONNEXIONS;
     private String dockerId;
 
     private int nbOfCurrentConnectedClients;
@@ -23,11 +23,11 @@ public class ServerTerminal {
      * Constructor for the server hosting the linux console used to play the games
      *
      * @param port
-     * @param MAX_SIMULTANEUS_CONNEXIONS
+     * @param MAX_SIMULTANEOUS_CONNEXIONS
      */
-    public ServerTerminal(int port, int MAX_SIMULTANEUS_CONNEXIONS) {
+    public ServerTerminal(int port, int MAX_SIMULTANEOUS_CONNEXIONS) {
         this.port = port;
-        this.MAX_SIMULTANEUS_CONNEXIONS = MAX_SIMULTANEUS_CONNEXIONS;
+        this.MAX_SIMULTANEOUS_CONNEXIONS = MAX_SIMULTANEOUS_CONNEXIONS;
     }
 
     /**
@@ -56,7 +56,7 @@ public class ServerTerminal {
         while (true) {
             SSLSocket client = (SSLSocket) server.accept();
 
-            if(nbOfCurrentConnectedClients<MAX_SIMULTANEUS_CONNEXIONS){
+            if(nbOfCurrentConnectedClients< MAX_SIMULTANEOUS_CONNEXIONS){
 
                 nbOfCurrentConnectedClients += 1;
 
