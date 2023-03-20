@@ -14,18 +14,20 @@ public class ServerTerminal {
     private static final String[] protocols = new String[]{"TLSv1.3"};
     private static final String[] cipher_suites = new String[]{"TLS_AES_128_GCM_SHA256"};
     private int port;
-    private int nbClients;
+    private final int MAX_SIMULTANEUS_CONNEXIONS;
     private String dockerId;
+
+    private int nbOfCurrentConnectedClients;
 
     /**
      * Constructor for the server hosting the linux console used to play the games
      *
      * @param port
-     * @param nbClients
+     * @param MAX_SIMULTANEUS_CONNEXIONS
      */
-    public ServerTerminal(int port, int nbClients) {
+    public ServerTerminal(int port, int MAX_SIMULTANEUS_CONNEXIONS) {
         this.port = port;
-        this.nbClients = nbClients;
+        this.MAX_SIMULTANEUS_CONNEXIONS = MAX_SIMULTANEUS_CONNEXIONS;
     }
 
     /**
@@ -49,58 +51,68 @@ public class ServerTerminal {
 
         System.out.println("Bash server launched on port : " + port);
 
-        for (int i = 1; i <= nbClients; i++) {
-            SSLSocket client = (SSLSocket)server.accept();
+        nbOfCurrentConnectedClients = 0;
 
-            dockerId = UUID.randomUUID().toString();
+        while (true) {
+            SSLSocket client = (SSLSocket) server.accept();
 
-            //Creation of a docker container per client
-            Runtime.getRuntime().exec("docker run -it -d --rm --name " + dockerId + " terminal");
+            if(nbOfCurrentConnectedClients<MAX_SIMULTANEUS_CONNEXIONS){
 
-            BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
+                nbOfCurrentConnectedClients += 1;
 
-            Thread receive = new Thread(new Runnable() {
-                String msg;
+                dockerId = UUID.randomUUID().toString();
 
-                @Override
-                public void run() {
-                    try {
-                        while ((msg = in.readLine()) != null) {
-                            try {
-                                //Execution of the command sent in the docker
-                                Process process = Runtime.getRuntime().exec("docker exec " + dockerId + " " + msg);
+                //Creation of a docker container per client
+                Runtime.getRuntime().exec("docker run -it -d --rm --name " + dockerId + " terminal");
 
-                                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                                String line = "";
+                BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
 
-                                while ((line = reader.readLine()) != null) {
-                                    out.write(line);
+                Thread receive = new Thread(new Runnable() {
+                    String msg;
+
+                    @Override
+                    public void run() {
+                        try {
+                            while ((msg = in.readLine()) != null) {
+                                try {
+                                    //Execution of the command sent in the docker
+                                    Process process = Runtime.getRuntime().exec("docker exec " + dockerId + " " + msg);
+
+                                    BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                                    String line = "";
+
+                                    while ((line = reader.readLine()) != null) {
+                                            out.write(line);
+                                            out.newLine();
+                                            out.flush();
+                                            System.out.println(line);
+                                    }
+                                } catch (IOException | NullPointerException | IllegalArgumentException e) {
+                                    out.write("Command does not exist");
                                     out.newLine();
                                     out.flush();
-                                    System.out.println(line);
                                 }
-                            }catch (IOException | NullPointerException | IllegalArgumentException e) {
-                                out.write("Command does not exist");
-                                out.newLine();
-                                out.flush();
                             }
+                            //Stop client docker
+                            Runtime.getRuntime().exec("docker stop " + dockerId);
+                            //Exit if the user disconnects
+                            System.out.println("Client disconnected");
+                            //Close the flux if the user disconnects
+                            out.close();
+                            client.close();
+
+                            nbOfCurrentConnectedClients -= 1;
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
                         }
-                        //Stop client docker
-                        Runtime.getRuntime().exec("docker stop " + dockerId);
-                        //Exit if the user disconnects
-                        System.out.println("Client disconnected");
-                        //Close the flux if the user disconnects
-                        out.close();
-                        client.close();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
                     }
-                }
-            });
-            receive.start();
+                });
+                receive.start();
+            }
         }
-        server.close();
+        // Unreachable variable -> could put a failsafe in the server like : if after 1h of maxclient connected then break
+        //server.close();
     }
 
     public static void main(String[] args) throws IOException {
