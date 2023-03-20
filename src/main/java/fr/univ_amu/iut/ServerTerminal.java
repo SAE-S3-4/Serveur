@@ -83,10 +83,13 @@ public class ServerTerminal {
                                     String line = "";
 
                                     while ((line = reader.readLine()) != null) {
-                                            out.write(line);
-                                            out.newLine();
-                                            out.flush();
-                                            System.out.println(line);
+                                        if(line.contains("OCI runtime exec failed: exec failed: unable to start container process: exec:")){
+                                            throw new IllegalArgumentException("Command does not exists");
+                                        }
+                                        out.write(line);
+                                        out.newLine();
+                                        out.flush();
+                                        System.out.println(line);
                                     }
                                 } catch (IOException | NullPointerException | IllegalArgumentException e) {
                                     out.write("Command does not exist");
@@ -109,14 +112,25 @@ public class ServerTerminal {
                     }
                 });
                 receive.start();
+
+            }else {
+                System.out.println("The maximal capacity supported by the server has been reached");
             }
         }
         // Unreachable variable -> could put a failsafe in the server like : if after 1h of maxclient connected then break
         //server.close();
     }
 
-    public static void main(String[] args) throws IOException {
-        ServerTerminal server = new ServerTerminal(10013,10000);
-        server.launch();
+    public static void main(String[] args) {
+
+        try {
+            ServerTerminal server = new ServerTerminal(10013,10000);
+            server.launch();
+
+        } catch (IOException e) {
+            System.out.println("Server couldn't be executed");
+            throw new RuntimeException(e);
+        }
+
     }
 }
