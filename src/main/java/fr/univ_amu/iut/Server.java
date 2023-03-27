@@ -1,5 +1,8 @@
 package fr.univ_amu.iut;
 
+import fr.univ_amu.iut.threads.ChatThread;
+import fr.univ_amu.iut.threads.TerminalThread;
+
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
@@ -15,20 +18,23 @@ public class Server {
     private static final String[] protocols = new String[]{"TLSv1.3"};
     private static final String[] cipher_suites = new String[]{"TLS_AES_128_GCM_SHA256"};
     private int port;
-    private final int MAX_SIMULTANEUS_CONNEXIONS;
+    private final int MAX_SIMULTANEOUS_CONNEXIONS;
     public static int nbOfCurrentConnectedClients;
     private ArrayList<ChatThread> chatClientThread;
+    private boolean isAiActive;
 
     /**
      * Constructor for the server hosting the linux console used to play the games
      *
      * @param port
-     * @param MAX_SIMULTANEUS_CONNEXIONS
+     * @param MAX_SIMULTANEOUS_CONNEXIONS
+     * @param isAiActive
      */
-    public Server(int port, int MAX_SIMULTANEUS_CONNEXIONS) {
+    public Server(int port, int MAX_SIMULTANEOUS_CONNEXIONS,boolean isAiActive) {
         this.port = port;
-        this.MAX_SIMULTANEUS_CONNEXIONS = MAX_SIMULTANEUS_CONNEXIONS;
+        this.MAX_SIMULTANEOUS_CONNEXIONS = MAX_SIMULTANEOUS_CONNEXIONS;
         this.chatClientThread = new ArrayList<>();
+        this.isAiActive = isAiActive;
     }
 
     /**
@@ -40,7 +46,7 @@ public class Server {
 
         System.setProperty("javax.net.ssl.keyStore","myKeyStore.jks");
         System.setProperty("javax.net.ssl.keyStorePassword","password");
-        //System.setProperty("javax.net.debug","all");
+        System.setProperty("javax.net.debug","all");
 
         // Create SSL server socket factory
         SSLServerSocketFactory factory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
@@ -57,7 +63,7 @@ public class Server {
         while (true) {
             SSLSocket client = (SSLSocket) server.accept();
             String flag;
-            if(nbOfCurrentConnectedClients<MAX_SIMULTANEUS_CONNEXIONS){
+            if(nbOfCurrentConnectedClients<MAX_SIMULTANEOUS_CONNEXIONS){
 
                 nbOfCurrentConnectedClients += 1;
                 BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
@@ -74,7 +80,7 @@ public class Server {
                     terminalThread.start();
 
                 }else if(flag.equals("chat")) {
-                    ChatThread clientChatThread = new ChatThread(in,out,client,this);
+                    ChatThread clientChatThread = new ChatThread(in,out,client,isAiActive,this);
                     chatClientThread.add(clientChatThread);
                     clientChatThread.start();
                 }
@@ -86,7 +92,12 @@ public class Server {
         //server.close();
     }
 
-    // Broadcast a message to all clients
+    /**
+     * Method used to broadcast a message to all clients connected to the chat, except the sender
+     *
+     * @param message
+     * @param sender
+     */
     public synchronized void broadcast(String message, ChatThread sender) {
         for (int i = 0; i < chatClientThread.size(); i++) {
             ChatThread clientThread = chatClientThread.get(i);
@@ -96,21 +107,13 @@ public class Server {
         }
     }
 
-    // Remove a client thread from the ArrayList
+    /**
+     * Method used to remove a client upon disconnection
+     *
+     * @param clientThread
+     */
     public synchronized void removeClient(ChatThread clientThread) {
         chatClientThread.remove(clientThread);
     }
 
-    public static void main(String[] args) {
-
-        try {
-            Server server = new Server(10013,10000);
-            server.launch();
-
-        } catch (IOException e) {
-            System.out.println("Server couldn't be executed");
-            throw new RuntimeException(e);
-        }
-
-    }
 }

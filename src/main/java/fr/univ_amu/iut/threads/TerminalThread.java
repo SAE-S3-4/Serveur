@@ -1,4 +1,6 @@
-package fr.univ_amu.iut;
+package fr.univ_amu.iut.threads;
+
+import fr.univ_amu.iut.Server;
 
 import javax.net.ssl.SSLSocket;
 import java.io.BufferedReader;
@@ -11,6 +13,15 @@ public class TerminalThread extends Thread {
     private BufferedWriter out;
     private String dockerId;
     private SSLSocket client;
+
+    /**
+     * The constructor of the thread used to execute the commands for the Terminal Pane
+     *
+     * @param in
+     * @param out
+     * @param dockerId
+     * @param client
+     */
     public TerminalThread(BufferedReader in , BufferedWriter out, String dockerId, SSLSocket client){
         this.in = in;
         this.out = out;

@@ -21,7 +21,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>fr.univ_amu.iut.Server</mainClass>
+                            <mainClass>fr.univ_amu.iut.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
