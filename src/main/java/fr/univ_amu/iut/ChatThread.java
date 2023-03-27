@@ -1,10 +1,7 @@
 package fr.univ_amu.iut;
 
 import javax.net.ssl.SSLSocket;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 
 public class ChatThread extends Thread {
     private BufferedReader in ;
@@ -26,32 +23,24 @@ public class ChatThread extends Thread {
             while ((msg = in.readLine()) != null) {
                 String entireMessage="";
                 try {
-                    //Execution of the command sent in the docker
-                    Process process = Runtime.getRuntime().exec("/llama.cpp/./main -m /llama.cpp/./models/7B/ggml-model-q4_0.bin -p \""+msg+"\" -f /llama.cpp/prompts/message.txt");
+                    ProcessBuilder pb = new ProcessBuilder("./talk.sh","\""+msg+"\"");
+
+                    pb.directory(new File("/home/opc/llama.cpp"));
+                    pb.redirectErrorStream(true);
+                    Process process = pb.start();
 
                     BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
                     String line = "";
                     while ((line = reader.readLine()) != null) {
-                        //**
-                        //serverTerminal.broadcast(line,this);
-                        //out.write(line);
-                        //out.newLine();
-                        //out.flush();
                         entireMessage+=line;
-                        System.out.println(line);
                     }
+                    System.out.println(entireMessage);
 
                 } catch (IOException e) {
-                    //throw new RuntimeException(e);
+                    throw new RuntimeException(e);
                 }
-
-                int start = entireMessage.indexOf("End of prompt.") + "End of prompt.".length();
-                int end = entireMessage.indexOf("[end of text]");
-
-                if (start >= 0 && end >= 0) {
-                    String response = entireMessage.substring(start, end).trim();
-                    serverTerminal.broadcast(response,this);
-                }
+                serverTerminal.broadcast(entireMessage,this);
+                System.out.println("message sent");
             }
             //Exit if the user disconnects
             System.out.println("Client disconnected");
