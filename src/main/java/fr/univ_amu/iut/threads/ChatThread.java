@@ -11,6 +11,7 @@ public class ChatThread extends Thread {
     private SSLSocket client;
     private Server serverTerminal;
     private boolean isAIActive;
+    private String userName;
 
     /**
      * The constructor of the Thread managing the chat
@@ -18,13 +19,15 @@ public class ChatThread extends Thread {
      * @param in
      * @param out
      * @param client
+     * @param userName
      * @param isAIActive
      * @param serverTerminal
      */
-    public ChatThread(BufferedReader in, BufferedWriter out, SSLSocket client,boolean isAIActive, Server serverTerminal) {
+    public ChatThread(BufferedReader in, BufferedWriter out, SSLSocket client,String userName,boolean isAIActive, Server serverTerminal) {
         this.in = in;
         this.out = out;
         this.client = client;
+        this.userName = userName;
         this.isAIActive = isAIActive;
         this.serverTerminal = serverTerminal;
     }
@@ -34,10 +37,10 @@ public class ChatThread extends Thread {
         String msg;
         try {
             while ((msg = in.readLine()) != null) {
+                serverTerminal.broadcast(userName+msg,this);
                 if(isAIActive) {
                     addAiToConversation(msg);
                 }
-                serverTerminal.broadcast(msg,this);
             }
             //Exit if the user disconnects
             System.out.println("Client disconnected");
@@ -80,8 +83,8 @@ public class ChatThread extends Thread {
             System.out.println("Error while executing the process");
             //throw new RuntimeException(e);
         }
-        serverTerminal.broadcast(entireMessage,this);
-        sendMessage(entireMessage);
+        serverTerminal.broadcast("Llama l'IA : "+entireMessage,this);
+        sendMessage("Llama l'IA : "+entireMessage);
     }
 
     /**

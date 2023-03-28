@@ -80,7 +80,7 @@ public class Server {
                     terminalThread.start();
 
                 }else if(flag.equals("chat")) {
-                    ChatThread clientChatThread = new ChatThread(in,out,client,isAiActive,this);
+                    ChatThread clientChatThread = new ChatThread(in,out,client,in.readLine()+" : ",isAiActive,this);
                     chatClientThread.add(clientChatThread);
                     clientChatThread.start();
                 }
