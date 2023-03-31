@@ -66,7 +66,7 @@ public class ChatThread extends Thread {
             //Use the bash script to send the message to the AI
             ProcessBuilder pb = new ProcessBuilder("./talk.sh","\""+msg+"\"");
 
-            pb.directory(new File("/home/opc/llama.cpp"));
+            pb.directory(new File("llama.cpp"));
             pb.redirectErrorStream(true);
             Process process = pb.start();
 
