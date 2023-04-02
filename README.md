@@ -1,3 +1,4 @@
+[![forthebadge](https://forthebadge.com/images/badges/made-with-java.svg)](https://forthebadge.com)![IntelliJ IDEA](https://img.shields.io/badge/IntelliJIDEA-000000.svg?style=for-the-badge&logo=intellij-idea&logoColor=white)</br>
 # Prerequis
 Le serveur as été structuré en telle sorte qu’il puisse être le plus flexible lors des modifications futures. En effet on pourrait l’utiliser en installant juste le JRE de Java 17. 
 
@@ -44,3 +45,11 @@ Et une fois que le projet as été configuré il faudra créer un fichier talk.s
 ./main -m ./models/7B/ggml-model-q4_0.bin --repeat_penalty 1.0 -p "$1" 2>outPut.txt 
 ```
 Ce script sera utilisé par le serveur pour interagir avec l’IA en lui passant un input et en récupérant l’output. 
+
+## Membres du projet 🧑‍💻
+
+Ceccarelli Luca</br>
+Egenscheviller Frédéric</br>
+Ramdani Djibril</br>
+Saadi Nils</br>
+Vial Amaury
