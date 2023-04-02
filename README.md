@@ -2,7 +2,7 @@
 # Prerequis
 Le serveur as été structuré en telle sorte qu’il puisse être le plus flexible lors des modifications futures. En effet on pourrait l’utiliser en installant juste le JRE de Java 17. 
 
-## Paramétrage
+## Paramétrage 🔧
 Pour modifier ses paramétrages utiliser les différents arguments listées et expliquées en lançant l’application avec le paramètre *--help*. 
 - *-p* : pour modifier le port du serveur 
 - *-maxConns* : pour modifier le numéro de connexions en simultanées au serveur admises 
@@ -10,7 +10,7 @@ Pour modifier ses paramétrages utiliser les différents arguments listées et e
 
 Si vous lancez le serveur sans paramètres on as également configuré des paramètres par défaut comme : l’utilisation du port 10013, l’activation de l’IA et 1000 connexions en simultanée. 
 
-## Pour que le serveur soit fonctionnel il vous faudra installer docker. 
+## Pour que le serveur soit fonctionnel il vous faudra installer docker 🗄
 
 Il vous suffit de créer un script bash contenant : 
 ```bash
@@ -31,7 +31,7 @@ Cette image est celle de notre serveur, si vous ne l’avez pas téléchargée p
 
 Il est nécessaire de connaitre votre architecture processeur pour la remplacer dans le script bash. Il est compatible pour les machines amd64 et arm64. Vous avez donc la possibilité de remplacer le tag par ces deux valeurs. 
 
-## Mise en place de l'IA
+## Mise en place de l'IA 🧠
 L’intelligence artificielle ne sera pas installée et mise en place avec l’image docker puisque cette configuration est trop lourde. 
 
 Si vous souhaitez la mettre en place l’IA vous pouvez suivre le mode d’emploi donnée sur le GitHub du projet officiel : https://github.com/ggerganov/llama.cpp 
