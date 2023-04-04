@@ -1,3 +1,11 @@
 FROM ubuntu:latest
 
-RUN apt-get update && apt-get install net-tools -y && apt-get install dnsutils -y
+COPY ["trame.txt", "tramessh.txt","./"]
+
+RUN apt-get update  \
+    && apt-get install net-tools -y  \
+    && apt-get install dnsutils -y  \
+    && apt-get install -y iproute2 \
+    && apt-get install -y iputils-ping \
+    && apt-get install -y netcat \
+    && apt-get install curl -y \
